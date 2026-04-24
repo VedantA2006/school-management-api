@@ -1,0 +1,91 @@
+{
+	"info": {
+		"_postman_id": "7f0a6d01-e2d1-4db8-8d4e-4f3b1e7c9f8a",
+		"name": "School Management API",
+		"description": "Postman collection for the School Management API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add School",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Green Valley High\",\n    \"address\": \"456 Maple Street, Silicon Valley\",\n    \"latitude\": 37.3861,\n    \"longitude\": -122.0839\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/addSchool",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"addSchool"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Schools",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/listSchools?latitude=37.7749&longitude=-122.4194",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"listSchools"
+					],
+					"query": [
+						{
+							"key": "latitude",
+							"value": "37.7749",
+							"description": "User's current latitude"
+						},
+						{
+							"key": "longitude",
+							"value": "-122.4194",
+							"description": "User's current longitude"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
