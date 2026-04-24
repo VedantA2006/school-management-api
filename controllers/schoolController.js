@@ -1,36 +1,66 @@
-const pool = require('../config/db');
+const db = require('../config/db');
 
-// Add a new school
-const addSchool = async (req, res, next) => {
+// -------------------- ADD SCHOOL --------------------
+const addSchool = (req, res) => {
   try {
     const { name, address, latitude, longitude } = req.body;
 
-    const query = 'INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)';
-    const [result] = await pool.execute(query, [name, address, latitude, longitude]);
+    // Validation
+    if (!name || !address || latitude == null || longitude == null) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required"
+      });
+    }
 
-    res.status(201).json({
-      success: true,
-      message: 'School added successfully',
-      data: {
-        id: result.insertId,
-        name,
-        address,
-        latitude,
-        longitude
+    const query = `
+      INSERT INTO schools (name, address, latitude, longitude)
+      VALUES (?, ?, ?, ?)
+    `;
+
+    db.query(query, [name, address, latitude, longitude], (err, result) => {
+      if (err) {
+        console.error("DB Error:", err);
+        return res.status(500).json({
+          success: false,
+          error: err.message
+        });
       }
+
+      res.status(201).json({
+        success: true,
+        message: "School added successfully",
+        data: {
+          id: result.insertId,
+          name,
+          address,
+          latitude,
+          longitude
+        }
+      });
     });
+
   } catch (error) {
-    next(error);
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    });
   }
 };
 
-// List schools sorted by distance
-const listSchools = async (req, res, next) => {
+// -------------------- LIST SCHOOLS --------------------
+const listSchools = (req, res) => {
   try {
-    const { lat, lon } = req.parsedQuery;
+    const { lat, lon } = req.query;
 
-    // Haversine formula directly in SQL
-    // 6371 is the radius of the Earth in km. Use 3959 for miles.
+    if (!lat || !lon) {
+      return res.status(400).json({
+        success: false,
+        message: "Latitude and Longitude are required"
+      });
+    }
+
     const query = `
       SELECT id, name, address, latitude, longitude,
       (
@@ -46,15 +76,28 @@ const listSchools = async (req, res, next) => {
       ORDER BY distance ASC
     `;
 
-    const [rows] = await pool.execute(query, [lat, lon, lat]);
+    db.query(query, [lat, lon, lat], (err, rows) => {
+      if (err) {
+        console.error("DB Error:", err);
+        return res.status(500).json({
+          success: false,
+          error: err.message
+        });
+      }
 
-    res.status(200).json({
-      success: true,
-      count: rows.length,
-      data: rows
+      res.status(200).json({
+        success: true,
+        count: rows.length,
+        data: rows
+      });
     });
+
   } catch (error) {
-    next(error);
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    });
   }
 };
 
