@@ -52,16 +52,23 @@ const addSchool = (req, res) => {
 // -------------------- LIST SCHOOLS --------------------
 const listSchools = (req, res) => {
   try {
-    // ✅ FIX: use req.query (NOT parsedQuery)
-    const latitude = req.query.latitude;
-    const longitude = req.query.longitude;
+    // ✅ Support BOTH formats
+    const latitude = req.query.latitude || req.query.lat;
+    const longitude = req.query.longitude || req.query.lon;
 
-    if (!latitude || !longitude) {
+    console.log("Incoming Query:", req.query); // 🔍 debug
+
+    // Validation
+    if (latitude == null || longitude == null) {
       return res.status(400).json({
         success: false,
         message: "Latitude and Longitude are required"
       });
     }
+
+    // Convert to numbers (VERY IMPORTANT)
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
 
     const query = `
       SELECT id, name, address, latitude, longitude,
@@ -78,9 +85,9 @@ const listSchools = (req, res) => {
       ORDER BY distance ASC
     `;
 
-    db.query(query, [latitude, longitude, latitude], (err, rows) => {
+    db.query(query, [lat, lon, lat], (err, rows) => {
       if (err) {
-        console.error(err);
+        console.error("DB Error:", err);
         return res.status(500).json({
           success: false,
           error: err.message
@@ -101,4 +108,9 @@ const listSchools = (req, res) => {
       message: "Internal Server Error"
     });
   }
+};
+
+module.exports = {
+  addSchool,
+  listSchools
 };
